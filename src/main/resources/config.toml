@@ -1,0 +1,43 @@
+# These versions will NOT be allowed to connect.
+# These versions MUST be the version number. You can check the numbers here: https://wiki.vg/Protocol_version_numbers
+# By default, all versions are listed here.
+# Everything here must have a comma after it!
+versions = [
+  47,
+  107,
+  108,
+  109,
+  110,
+  210,
+  315,
+  316,
+  335,
+  338,
+  340,
+  393,
+  401,
+  404,
+  477,
+  480,
+  485,
+  490,
+  498,
+  573,
+  575,
+  578,
+  735,
+  736,
+  751,
+  753,
+  754,
+  755,
+  756,
+]
+
+# Send this message if someone connects with a blocked version.
+# Use {VERSIONS} to show what versions your server uses. It will display like "1.8 to 1.16.3" or whatever.
+# If you don't want to use {VERSIONS}, just remove it.
+disconnect_message = "<red>You cannot connect with this version! We only allow version(s) {VERSIONS}.</red>"
+
+# No touch please :)
+config_version = 2
