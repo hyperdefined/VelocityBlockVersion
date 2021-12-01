@@ -57,6 +57,7 @@ public class VersionToStrings {
         versionStrings.put(754, "1.16.4");
         versionStrings.put(755, "1.17");
         versionStrings.put(756, "1.17.1");
+        versionStrings.put(757, "1.18");
     }
 
     /**
