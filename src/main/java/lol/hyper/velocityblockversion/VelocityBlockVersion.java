@@ -23,17 +23,28 @@ import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.proxy.ProxyServer;
+import lol.hyper.githubreleaseapi.GitHubRelease;
+import lol.hyper.githubreleaseapi.GitHubReleaseAPI;
 import lol.hyper.velocityblockversion.tools.ConfigHandler;
 import lol.hyper.velocityblockversion.tools.VersionToStrings;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bstats.velocity.Metrics;
+import org.json.JSONObject;
 import org.slf4j.Logger;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
 
 @Plugin(
         id = "velocityblockversion",
         name = "VelocityBlockVersion",
-        version = "1.0",
+        version = "1.0.2",
         authors = {"hyperdefined"},
         description = "Block certain Minecraft versions from connecting to your network."
 )
@@ -43,11 +54,24 @@ public class VelocityBlockVersion {
 
     public final Logger logger;
     private final Metrics.Factory metricsFactory;
+    ProxyServer server;
+    String currentVersion;
 
     @Inject
-    public VelocityBlockVersion(Logger logger, Metrics.Factory metricsFactory) {
+    public VelocityBlockVersion(ProxyServer server, Logger logger, Metrics.Factory metricsFactory) {
+        this.server = server;
         this.logger = logger;
         this.metricsFactory = metricsFactory;
+        // this kinda sucks but whatever
+        InputStream json = VelocityBlockVersion.class.getResourceAsStream("/velocity-plugin.json");
+        if (json != null) {
+            String text = new BufferedReader(
+                    new InputStreamReader(json, StandardCharsets.UTF_8))
+                    .lines()
+                    .collect(Collectors.joining("\n"));
+            JSONObject version = new JSONObject(text);
+            currentVersion = version.getString("version");
+        }
     }
 
     @Subscribe
@@ -56,6 +80,7 @@ public class VelocityBlockVersion {
         configHandler = new ConfigHandler(this);
         configHandler.loadConfig();
         Metrics metrics = metricsFactory.make(this, 13308);
+        server.getScheduler().buildTask(this, this::checkForUpdates).schedule();
     }
 
     @Subscribe(order = PostOrder.FIRST)
@@ -74,6 +99,29 @@ public class VelocityBlockVersion {
             event.setResult(PreLoginEvent.PreLoginComponentResult.denied(message));
             logger.info("Blocking player " + event.getUsername() + " because they are playing on version "
                     + VersionToStrings.versionStrings.get(version) + " which is blocked!");
+        }
+    }
+
+    public void checkForUpdates() {
+        GitHubReleaseAPI api;
+        try {
+            api = new GitHubReleaseAPI("velocityblockversion", "hyperdefined");
+        } catch (IOException e) {
+            logger.warn("Unable to check updates!");
+            e.printStackTrace();
+            return;
+        }
+        GitHubRelease current = api.getReleaseByTag(currentVersion);
+        GitHubRelease latest = api.getLatestVersion();
+        if (current == null) {
+            logger.warn("You are running a version that does not exist on GitHub. If you are in a dev environment, you can ignore this. Otherwise, this is a bug!");
+            return;
+        }
+        int buildsBehind = api.getBuildsBehind(current);
+        if (buildsBehind == 0) {
+            logger.info("You are running the latest version.");
+        } else {
+            logger.warn("A new version is available (" + latest.getTagVersion() + ")! You are running version " + current.getTagVersion() + ". You are " + buildsBehind + " version(s) behind.");
         }
     }
 }

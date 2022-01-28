@@ -23,7 +23,7 @@
 
     <groupId>lol.hyper</groupId>
     <artifactId>velocityblockversion</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
 
     <name>VelocityBlockVersion</name>
@@ -41,6 +41,19 @@
         </resource>
     </resources>
         <plugins>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>auto-clean</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -142,6 +155,11 @@
             <artifactId>bstats-velocity</artifactId>
             <version>3.0.0</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>lol.hyper</groupId>
+            <artifactId>github-release-api</artifactId>
+            <version>1.0.1</version>
         </dependency>
     </dependencies>
 </project>
