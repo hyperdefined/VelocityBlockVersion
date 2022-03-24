@@ -56,6 +56,7 @@ public class VelocityBlockVersion {
     private final Metrics.Factory metricsFactory;
     ProxyServer server;
     String currentVersion;
+    public MiniMessage miniMessage = MiniMessage.miniMessage();
 
     @Inject
     public VelocityBlockVersion(ProxyServer server, Logger logger, Metrics.Factory metricsFactory) {
@@ -95,7 +96,7 @@ public class VelocityBlockVersion {
             if (blockedMessage.contains("{VERSIONS}")) {
                 blockedMessage = blockedMessage.replace("{VERSIONS}", allowedVersions);
             }
-            Component message = MiniMessage.get().parse(blockedMessage);
+            Component message = miniMessage.deserialize(blockedMessage);
             event.setResult(PreLoginEvent.PreLoginComponentResult.denied(message));
             logger.info("Blocking player " + event.getUsername() + " because they are playing on version "
                     + VersionToStrings.versionStrings.get(version) + " which is blocked!");
