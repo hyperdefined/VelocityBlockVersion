@@ -16,7 +16,7 @@ A port of BungeeBlockVersion for Velocity. This plugin will block players from c
 * Custom disconnect message.
 
 ## Documentation
-Visit the [wiki](https://docs.hyper.lol/velocityblockversion) for help.
+Visit the [wiki](https://github.com/hyperdefined/VelocityBlockVersion/wiki) for help.
 
 ## License
 This plugin is released under GNU General Public License v3. See [LICENSE](https://github.com/hyperdefined/VelocityBlockVersion/blob/master/LICENSE).
