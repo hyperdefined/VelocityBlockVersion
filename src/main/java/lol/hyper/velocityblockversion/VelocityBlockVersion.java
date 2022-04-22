@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 @Plugin(
         id = "velocityblockversion",
         name = "VelocityBlockVersion",
-        version = "1.0.2",
+        version = "1.0.4",
         authors = {"hyperdefined"},
         description = "Block certain Minecraft versions from connecting to your network."
 )
@@ -80,7 +80,7 @@ public class VelocityBlockVersion {
         VersionToStrings.init();
         configHandler = new ConfigHandler(this);
         configHandler.loadConfig();
-        Metrics metrics = metricsFactory.make(this, 13308);
+        metricsFactory.make(this, 13308);
         server.getScheduler().buildTask(this, this::checkForUpdates).schedule();
     }
 
