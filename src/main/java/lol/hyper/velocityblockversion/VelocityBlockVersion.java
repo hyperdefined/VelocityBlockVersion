@@ -31,53 +31,37 @@ import lol.hyper.velocityblockversion.tools.VersionToStrings;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bstats.velocity.Metrics;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.stream.Collectors;
 
 @Plugin(
         id = "velocityblockversion",
         name = "VelocityBlockVersion",
-        version = "1.0.4",
+        version = "1.0.5",
         authors = {"hyperdefined"},
-        description = "Block certain Minecraft versions from connecting to your network."
+        description = "Block certain Minecraft versions from connecting to your network.",
+        url = "https://github.com/hyperdefined/VelocityBlockVersion"
 )
 public class VelocityBlockVersion {
 
     public ConfigHandler configHandler;
+    public final String VERSION = "1.0.5";
 
     public final Logger logger;
     private final Metrics.Factory metricsFactory;
-    ProxyServer server;
-    String currentVersion;
-    public MiniMessage miniMessage = MiniMessage.miniMessage();
+    private final ProxyServer server;
+    public final MiniMessage miniMessage = MiniMessage.miniMessage();
 
     @Inject
     public VelocityBlockVersion(ProxyServer server, Logger logger, Metrics.Factory metricsFactory) {
         this.server = server;
         this.logger = logger;
         this.metricsFactory = metricsFactory;
-        // this kinda sucks but whatever
-        InputStream json = VelocityBlockVersion.class.getResourceAsStream("/velocity-plugin.json");
-        if (json != null) {
-            String text = new BufferedReader(
-                    new InputStreamReader(json, StandardCharsets.UTF_8))
-                    .lines()
-                    .collect(Collectors.joining("\n"));
-            JSONObject version = new JSONObject(text);
-            currentVersion = version.getString("version");
-        }
     }
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        VersionToStrings.init();
         configHandler = new ConfigHandler(this);
         configHandler.loadConfig();
         metricsFactory.make(this, 13308);
@@ -112,7 +96,7 @@ public class VelocityBlockVersion {
             e.printStackTrace();
             return;
         }
-        GitHubRelease current = api.getReleaseByTag(currentVersion);
+        GitHubRelease current = api.getReleaseByTag(VERSION);
         GitHubRelease latest = api.getLatestVersion();
         if (current == null) {
             logger.warn("You are running a version that does not exist on GitHub. If you are in a dev environment, you can ignore this. Otherwise, this is a bug!");

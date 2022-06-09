@@ -31,7 +31,7 @@ public class ConfigHandler {
     public Toml config;
     private final VelocityBlockVersion velocityBlockVersion;
     public static final List<Integer> versions = new ArrayList<>();
-    public static final double CONFIG_VERSION = 2;
+    public static final double CONFIG_VERSION = 3;
 
     public ConfigHandler(VelocityBlockVersion velocityBlockVersion) {
         this.velocityBlockVersion = velocityBlockVersion;

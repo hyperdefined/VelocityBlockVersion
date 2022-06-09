@@ -34,6 +34,7 @@ versions = [
   756,
   757,
   758,
+  759,
 ]
 
 # Send this message if someone connects with a blocked version.
@@ -42,4 +43,4 @@ versions = [
 disconnect_message = "<red>You cannot connect with this version! We only allow version(s) {VERSIONS}.</red>"
 
 # No touch please :)
-config_version = 2
+config_version = 3

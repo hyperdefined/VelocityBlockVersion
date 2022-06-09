@@ -23,7 +23,7 @@
 
     <groupId>lol.hyper</groupId>
     <artifactId>velocityblockversion</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <packaging>jar</packaging>
 
     <name>VelocityBlockVersion</name>
@@ -87,6 +87,11 @@
                             <!-- Replace this with your package! -->
                             <shadedPattern>lol.hyper.velocityblockversion.bstats</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>lol.hyper.githubreleaseapi</pattern>
+                            <!-- Replace this with your package! -->
+                            <shadedPattern>lol.hyper.velocityblockversion.updater</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -119,6 +124,7 @@
             <groupId>net.kyori</groupId>
             <artifactId>adventure-text-minimessage</artifactId>
             <version>4.11.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.bstats</groupId>
@@ -130,6 +136,13 @@
             <groupId>lol.hyper</groupId>
             <artifactId>github-release-api</artifactId>
             <version>1.0.2</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.json</groupId>
+                    <artifactId>json</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>
