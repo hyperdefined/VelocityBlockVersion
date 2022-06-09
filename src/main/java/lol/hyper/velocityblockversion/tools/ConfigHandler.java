@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConfigHandler {
 
@@ -72,6 +73,7 @@ public class ConfigHandler {
             velocityBlockVersion.logger.warn(
                     "To fix this, delete your current config and let the server remake it.");
         }
+        blockVersions.clear();
         // for some reason, the config loads the versions as longs
         // we have to convert them this ugly way
         for (Object obj : config.getList("versions")) {
@@ -83,6 +85,7 @@ public class ConfigHandler {
         } else {
             velocityBlockVersion.logger.info("Loaded " + blockVersions.size() + " versions!");
         }
+        velocityBlockVersion.logger.info("Loaded versions: " + blockVersions.stream().map(String::valueOf).collect(Collectors.joining(", ")));
         // use an iterator here so we can remove stuff
         Iterator<Integer> iter = blockVersions.iterator();
         while (iter.hasNext()) {
