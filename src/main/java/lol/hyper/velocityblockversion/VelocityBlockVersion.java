@@ -18,17 +18,17 @@
 package lol.hyper.velocityblockversion;
 
 import com.google.inject.Inject;
-import com.velocitypowered.api.event.PostOrder;
-import com.velocitypowered.api.event.connection.PreLoginEvent;
+import com.velocitypowered.api.command.CommandManager;
+import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lol.hyper.githubreleaseapi.GitHubRelease;
 import lol.hyper.githubreleaseapi.GitHubReleaseAPI;
+import lol.hyper.velocityblockversion.commands.CommandReload;
+import lol.hyper.velocityblockversion.events.JoinEvent;
 import lol.hyper.velocityblockversion.tools.ConfigHandler;
-import lol.hyper.velocityblockversion.tools.VersionToStrings;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
@@ -46,45 +46,36 @@ import java.io.IOException;
 public class VelocityBlockVersion {
 
     public ConfigHandler configHandler;
+    public JoinEvent joinEvent;
+    public CommandReload commandReload;
     public final String VERSION = "1.0.5";
 
     public final Logger logger;
     private final Metrics.Factory metricsFactory;
     private final ProxyServer server;
+    private final CommandManager commandManager;
     public final MiniMessage miniMessage = MiniMessage.miniMessage();
 
     @Inject
-    public VelocityBlockVersion(ProxyServer server, Logger logger, Metrics.Factory metricsFactory) {
+    public VelocityBlockVersion(ProxyServer server, Logger logger, Metrics.Factory metricsFactory, CommandManager commandManager) {
         this.server = server;
         this.logger = logger;
         this.metricsFactory = metricsFactory;
+        this.commandManager = commandManager;
     }
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         configHandler = new ConfigHandler(this);
+        joinEvent = new JoinEvent(this);
+        commandReload = new CommandReload(this);
         configHandler.loadConfig();
         metricsFactory.make(this, 13308);
         server.getScheduler().buildTask(this, this::checkForUpdates).schedule();
-    }
+        server.getEventManager().register(this, joinEvent);
 
-    @Subscribe(order = PostOrder.FIRST)
-    public void onPlayerLogin(PreLoginEvent event) {
-        int version = event.getConnection().getProtocolVersion().getProtocol();
-        if (ConfigHandler.versions.contains(version)) {
-            String allowedVersions = VersionToStrings.allowedVersions(ConfigHandler.versions);
-            String blockedMessage = configHandler.config.getString("disconnect_message");
-            if (allowedVersions == null) {
-                blockedMessage = "<red>All versions are currently blocked from playing.</red>";
-            }
-            if (blockedMessage.contains("{VERSIONS}")) {
-                blockedMessage = blockedMessage.replace("{VERSIONS}", allowedVersions);
-            }
-            Component message = miniMessage.deserialize(blockedMessage);
-            event.setResult(PreLoginEvent.PreLoginComponentResult.denied(message));
-            logger.info("Blocking player " + event.getUsername() + " because they are playing on version "
-                    + VersionToStrings.versionStrings.get(version) + " which is blocked!");
-        }
+        CommandMeta meta = commandManager.metaBuilder("vbvreload").build();
+        commandManager.register(meta, commandReload);
     }
 
     public void checkForUpdates() {

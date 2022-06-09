@@ -30,8 +30,8 @@ public class ConfigHandler {
 
     public Toml config;
     private final VelocityBlockVersion velocityBlockVersion;
-    public static final List<Integer> versions = new ArrayList<>();
-    public static final double CONFIG_VERSION = 3;
+    public final List<Integer> blockVersions = new ArrayList<>();
+    public final double CONFIG_VERSION = 3;
 
     public ConfigHandler(VelocityBlockVersion velocityBlockVersion) {
         this.velocityBlockVersion = velocityBlockVersion;
@@ -41,6 +41,10 @@ public class ConfigHandler {
         File configFile = new File("plugins" + File.separator + "VelocityBlockVersion", "config.toml");
         if (!configFile.exists()) {
             InputStream is = velocityBlockVersion.getClass().getResourceAsStream( "/config.toml");
+            if (is == null) {
+                velocityBlockVersion.logger.error("Unable to load \"config.toml\" from the plugin jar!");
+                return;
+            }
             File path = new File("plugins" + File.separator + "VelocityBlockVersion");
             try {
                 if (path.mkdir()) {
@@ -72,15 +76,15 @@ public class ConfigHandler {
         // we have to convert them this ugly way
         for (Object obj : config.getList("versions")) {
             long t = (long) obj;
-            versions.add((int) t);
+            blockVersions.add((int) t);
         }
-        if (versions.size() == 0) {
+        if (blockVersions.size() == 0) {
             velocityBlockVersion.logger.warn("There are no versions listed in the config!");
         } else {
-            velocityBlockVersion.logger.info("Loaded " + versions.size() + " versions!");
+            velocityBlockVersion.logger.info("Loaded " + blockVersions.size() + " versions!");
         }
         // use an iterator here so we can remove stuff
-        Iterator<Integer> iter = versions.iterator();
+        Iterator<Integer> iter = blockVersions.iterator();
         while (iter.hasNext()) {
             int version = iter.next();
             if (!VersionToStrings.versionStrings.containsKey(version)) {
