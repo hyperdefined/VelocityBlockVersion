@@ -1,7 +1,7 @@
 <h1 align="center">VelocityBlockVersion</h1>
 
 <p align="center">
-	<img src="https://img.shields.io/badge/Minecraft-1.8--1.17.1-orange" alt="Minecraft versions">
+	<img src="https://img.shields.io/badge/Minecraft-1.8--1.19-orange" alt="Minecraft versions">
 	<img src="https://img.shields.io/github/v/release/hyperdefined/VelocityBlockVersion" alt="GitHub release (latest by date)">
 	<a href="https://github.com/hyperdefined/VelocityBlockVersion/releases"><img src="https://img.shields.io/github/downloads/hyperdefined/VelocityBlockVersion/total?logo=github" alt="Downloads"></a>
 	<a href="https://en.cryptobadges.io/donate/1F29aNKQzci3ga5LDcHHawYzFPXvELTFoL"><img src="https://en.cryptobadges.io/badge/micro/1F29aNKQzci3ga5LDcHHawYzFPXvELTFoL" alt="Donate with Bitcoin"></a>
