@@ -38,7 +38,7 @@ import java.io.IOException;
 @Plugin(
         id = "velocityblockversion",
         name = "VelocityBlockVersion",
-        version = "1.0.5",
+        version = "1.0.7",
         authors = {"hyperdefined"},
         description = "Block certain Minecraft versions from connecting to your network.",
         url = "https://github.com/hyperdefined/VelocityBlockVersion"
@@ -48,7 +48,7 @@ public class VelocityBlockVersion {
     public ConfigHandler configHandler;
     public JoinEvent joinEvent;
     public CommandReload commandReload;
-    public final String VERSION = "1.0.5";
+    public final String VERSION = "1.0.7";
 
     public final Logger logger;
     private final Metrics.Factory metricsFactory;

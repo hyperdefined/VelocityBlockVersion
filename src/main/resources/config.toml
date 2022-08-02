@@ -43,5 +43,9 @@ versions = [
 # If you don't want to use {VERSIONS}, just remove it.
 disconnect_message = "<red>You cannot connect with this version! We only allow version(s) {VERSIONS}.</red>"
 
+# This will say "Player is connecting with protocol version" when someone joins.
+# This is off by default to not spam your console, but you can enable it for debug reasons.
+log_connection_versions = false
+
 # No touch please :)
-config_version = 3
+config_version = 4

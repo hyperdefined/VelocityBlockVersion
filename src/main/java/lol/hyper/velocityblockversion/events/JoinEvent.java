@@ -38,7 +38,9 @@ public class JoinEvent {
     @Subscribe(order = PostOrder.FIRST)
     public void onPlayerLogin(PreLoginEvent event) {
         int version = event.getConnection().getProtocolVersion().getProtocol();
-        velocityBlockVersion.logger.info("Player is connecting with protocol version: " + version);
+        if (configHandler.config.getBoolean("log_connection_versions")) {
+            velocityBlockVersion.logger.info("Player is connecting with protocol version: " + version);
+        }
         if (configHandler.blockVersions.contains(version)) {
             String allowedVersions = VersionToStrings.allowedVersions(configHandler.blockVersions);
             String blockedMessage = configHandler.config.getString("disconnect_message");
