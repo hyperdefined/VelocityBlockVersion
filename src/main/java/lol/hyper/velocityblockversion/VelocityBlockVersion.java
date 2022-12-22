@@ -48,7 +48,7 @@ public class VelocityBlockVersion {
     public ConfigHandler configHandler;
     public JoinEvent joinEvent;
     public CommandReload commandReload;
-    public final String VERSION = "1.0.8";
+    public final String VERSION = "1.0.7";
 
     public final Logger logger;
     private final Metrics.Factory metricsFactory;
