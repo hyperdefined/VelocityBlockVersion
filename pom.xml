@@ -84,12 +84,10 @@
                     <relocations>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <!-- Replace this with your package! -->
                             <shadedPattern>lol.hyper.velocityblockversion.bstats</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>lol.hyper.githubreleaseapi</pattern>
-                            <!-- Replace this with your package! -->
                             <shadedPattern>lol.hyper.velocityblockversion.updater</shadedPattern>
                         </relocation>
                     </relocations>
@@ -109,7 +107,7 @@
     <repositories>
         <repository>
             <id>velocitypowered-repo</id>
-            <url>https://nexus.velocitypowered.com/repository/maven-public/</url>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
     </repositories>
 
