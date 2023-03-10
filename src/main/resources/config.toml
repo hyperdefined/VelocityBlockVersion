@@ -40,13 +40,13 @@ versions = [
 ]
 
 # Send this message if someone connects with a blocked version.
-# Use {VERSIONS} to show what versions your server uses. It will display like "1.8 to 1.16.3" or whatever.
-# If you don't want to use {VERSIONS}, just remove it.
-disconnect_message = "<red>You cannot connect with this version! We only allow version(s) {VERSIONS}.</red>"
+# Use <versions> to show what versions your server uses. It will display like "1.8 to 1.16.3" or whatever.
+# If you don't want to use <versions>, just remove it.
+disconnect_message = "<red>You cannot connect with this version! We only allow version(s) <versions>."
 
 # This will say "Player is connecting with protocol version" when someone joins.
 # This is off by default to not spam your console, but you can enable it for debug reasons.
 log_connection_versions = false
 
 # No touch please :)
-config_version = 4
+config_version = 5

@@ -17,84 +17,102 @@
 
 package lol.hyper.velocityblockversion.tools;
 
+import com.google.inject.Inject;
 import com.moandjiezana.toml.Toml;
-import lol.hyper.velocityblockversion.VelocityBlockVersion;
+import com.velocitypowered.api.network.ProtocolVersion;
+import com.velocitypowered.api.plugin.annotation.DataDirectory;
+import org.slf4j.Logger;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ConfigHandler {
+public final class ConfigHandler {
+    @Inject
+    private Logger logger;
+    @Inject
+    @DataDirectory
+    private Path folderPath;
 
-    public Toml config;
-    private final VelocityBlockVersion velocityBlockVersion;
-    public final List<Integer> blockVersions = new ArrayList<>();
-    public final double CONFIG_VERSION = 4;
+    private Toml config;
+    private final List<Integer> blockVersions = new ArrayList<>();
+    public final long CONFIG_VERSION = 5;
 
-    public ConfigHandler(VelocityBlockVersion velocityBlockVersion) {
-        this.velocityBlockVersion = velocityBlockVersion;
-    }
-
-    public void loadConfig() {
-        File configFile = new File("plugins" + File.separator + "VelocityBlockVersion", "config.toml");
-        if (!configFile.exists()) {
-            InputStream is = velocityBlockVersion.getClass().getResourceAsStream( "/config.toml");
-            if (is == null) {
-                velocityBlockVersion.logger.error("Unable to load \"config.toml\" from the plugin jar!");
-                return;
-            }
-            File path = new File("plugins" + File.separator + "VelocityBlockVersion");
+    public boolean loadConfig() {
+        if (Files.notExists(folderPath)) {
             try {
-                if (path.mkdir()) {
-                    Files.copy(is, configFile.toPath());
-                    velocityBlockVersion.logger.info("Copying default config...");
-                } else {
-                    velocityBlockVersion.logger.error("Unable to create config folder!");
-                }
-            } catch (IOException e) {
-                velocityBlockVersion.logger.error("Unable to copy default config!", e);
+                Files.createDirectory(folderPath);
+            } catch(IOException e) {
+                logger.error("Unable to create config folder!", e);
             }
         }
-        InputStream inputStream;
-        try {
-            inputStream = new FileInputStream(configFile);
-        } catch (FileNotFoundException e) {
-            velocityBlockVersion.logger.error("Unable to find config!", e);
-            return;
+
+        final Path configFile = folderPath.resolve("config.toml");
+        if (Files.notExists(configFile)) {
+            try (InputStream is = ConfigHandler.class.getClassLoader().getResourceAsStream( "config.toml")){
+                if (is == null) {
+                    logger.error("Unable to load 'config.toml' from the plugin jar!");
+                    return false;
+                }
+                Files.copy(is, configFile);
+            } catch (IOException e) {
+                logger.error("Unable to copy default config!", e);
+                return false;
+            }
         }
-        config = new Toml().read(inputStream);
+        try (final InputStream is = Files.newInputStream(folderPath.resolve("config.toml"))) {
+            config = new Toml().read(is);
+        } catch (IOException e) {
+            logger.error("Unable to find config!", e);
+            return false;
+        }
 
         if (config.getLong("config_version") != CONFIG_VERSION) {
-            velocityBlockVersion.logger.warn(
+            logger.warn(
                     "Your config is outdated. We will attempt to load your current config. However, things might not work!");
-            velocityBlockVersion.logger.warn(
+            logger.warn(
                     "To fix this, delete your current config and let the server remake it.");
         }
         blockVersions.clear();
+
         // for some reason, the config loads the versions as longs
         // we have to convert them this ugly way
-        for (Object obj : config.getList("versions")) {
-            long t = (long) obj;
-            blockVersions.add((int) t);
-        }
-        if (blockVersions.size() == 0) {
-            velocityBlockVersion.logger.warn("There are no versions listed in the config!");
-        } else {
-            velocityBlockVersion.logger.info("Loaded " + blockVersions.size() + " versions!");
-        }
-        velocityBlockVersion.logger.info("Loaded versions: " + blockVersions.stream().map(String::valueOf).collect(Collectors.joining(", ")));
-        // use an iterator here so we can remove stuff
-        Iterator<Integer> iter = blockVersions.iterator();
-        while (iter.hasNext()) {
-            int version = iter.next();
-            if (!VersionToStrings.versionStrings.containsKey(version)) {
-                velocityBlockVersion.logger.warn(
-                        "Version " + version + " is NOT a valid version number! Ignoring this version.");
-                iter.remove();
+        for (Object obj : config.getList("versions", List.of())) {
+            if (obj instanceof Number) {
+                int t = ((Number) obj).intValue();
+                blockVersions.add(t);
+            } else {
+                logger.error("Unexpected versions configuration input {}", obj);
             }
         }
+
+        if (blockVersions.isEmpty()) {
+            logger.warn("There are no versions listed in the config!");
+        } else {
+            blockVersions.removeIf(protocol -> {
+                if (ProtocolVersion.ID_TO_PROTOCOL_CONSTANT.containsKey(protocol)) {
+                    return false;
+                } else {
+                    logger.warn("Version {} is NOT a valid version number! Ignoring this version.", protocol);
+                    return true;
+                }
+            });
+            logger.info("Loaded {} versions!", blockVersions.size());
+        }
+        logger.info("Loaded versions: {}", blockVersions.stream().map(String::valueOf).collect(Collectors.joining(", ")));
+
+        return true;
+    }
+
+    public List<Integer> getBlockVersions() {
+        return blockVersions;
+    }
+
+    public Toml getConfig() {
+        return config;
     }
 }

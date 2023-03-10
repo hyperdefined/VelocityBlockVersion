@@ -17,43 +17,53 @@
 
 package lol.hyper.velocityblockversion.events;
 
+import com.google.inject.Inject;
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
-import lol.hyper.velocityblockversion.VelocityBlockVersion;
+import com.velocitypowered.api.network.ProtocolVersion;
 import lol.hyper.velocityblockversion.tools.ConfigHandler;
 import lol.hyper.velocityblockversion.tools.VersionToStrings;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import org.slf4j.Logger;
 
-public class JoinEvent {
+import static net.kyori.adventure.text.minimessage.MiniMessage.miniMessage;
 
-    private final VelocityBlockVersion velocityBlockVersion;
-    private final ConfigHandler configHandler;
-
-    public JoinEvent(VelocityBlockVersion velocityBlockVersion) {
-        this.velocityBlockVersion = velocityBlockVersion;
-        this.configHandler = velocityBlockVersion.configHandler;
-    }
+public final class JoinEvent {
+    @Inject
+    private Logger logger;
+    @Inject
+    private ConfigHandler configHandler;
 
     @Subscribe(order = PostOrder.FIRST)
-    public void onPlayerLogin(PreLoginEvent event) {
-        int version = event.getConnection().getProtocolVersion().getProtocol();
-        if (configHandler.config.getBoolean("log_connection_versions")) {
-            velocityBlockVersion.logger.info("Player is connecting with protocol version: " + version);
+    public void onPlayerLogin(final PreLoginEvent event) {
+        final int version = event.getConnection().getProtocolVersion().getProtocol();
+        if (configHandler.getConfig().getBoolean("log_connection_versions", false)) {
+            logger.info("Player is connecting with protocol version: {}", version);
         }
-        if (configHandler.blockVersions.contains(version)) {
-            String allowedVersions = VersionToStrings.allowedVersions(configHandler.blockVersions);
-            String blockedMessage = configHandler.config.getString("disconnect_message");
-            if (allowedVersions == null) {
-                blockedMessage = "<red>All versions are currently blocked from playing.</red>";
-            }
-            if (blockedMessage.contains("{VERSIONS}")) {
-                blockedMessage = blockedMessage.replace("{VERSIONS}", allowedVersions);
-            }
-            Component message = velocityBlockVersion.miniMessage.deserialize(blockedMessage);
-            event.setResult(PreLoginEvent.PreLoginComponentResult.denied(message));
-            velocityBlockVersion.logger.info("Blocking player " + event.getUsername() + " because they are playing on version "
-                    + VersionToStrings.versionStrings.get(version) + " which is blocked!");
+
+        if (!configHandler.getBlockVersions().contains(version)) {
+            return;
         }
+
+        String allowedVersions = VersionToStrings.allowedVersions(configHandler.getBlockVersions());
+        String blockedMessage = configHandler.getConfig().getString("disconnect_message");
+
+        if (allowedVersions == null) {
+            blockedMessage = "<red>All versions are currently blocked from playing.";
+            allowedVersions = "";
+        }
+
+        final Component message = miniMessage().deserialize(
+                blockedMessage,
+                Placeholder.unparsed("versions", allowedVersions)
+        );
+        event.setResult(PreLoginEvent.PreLoginComponentResult.denied(message));
+        logger.info(
+                "Blocking player {} because they are playing on version {} which is blocked!",
+                event.getUsername(),
+                ProtocolVersion.getProtocolVersion(version).getMostRecentSupportedVersion()
+        );
     }
 }
