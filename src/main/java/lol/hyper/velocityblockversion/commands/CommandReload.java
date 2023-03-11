@@ -17,28 +17,27 @@
 
 package lol.hyper.velocityblockversion.commands;
 
+import com.google.inject.Inject;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
-import lol.hyper.velocityblockversion.VelocityBlockVersion;
+import lol.hyper.velocityblockversion.tools.ConfigHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
-public class CommandReload implements SimpleCommand{
+public final class CommandReload implements SimpleCommand {
+    @Inject
+    private ConfigHandler configHandler;
 
-    private final VelocityBlockVersion velocityBlockVersion;
-
-    public CommandReload(VelocityBlockVersion velocityBlockVersion) {
-        this.velocityBlockVersion = velocityBlockVersion;
+    @Override
+    public void execute(final Invocation invocation) {
+        final CommandSource source = invocation.source();
+        if (configHandler.loadConfig()) {
+            source.sendMessage(Component.text("Config reloaded!", NamedTextColor.GREEN));
+        }
     }
 
     @Override
-    public void execute(SimpleCommand.Invocation invocation) {
-        CommandSource source = invocation.source();
-        if (source.hasPermission("velocityBlockVersion.reload")) {
-            velocityBlockVersion.configHandler.loadConfig();
-            source.sendMessage(Component.text("Config reloaded!").color(NamedTextColor.GREEN));
-        } else {
-            source.sendMessage(Component.text("You do not have permission for this command.").color(NamedTextColor.RED));
-        }
+    public boolean hasPermission(final Invocation invocation) {
+        return invocation.source().hasPermission("velocityBlockVersion.reload");
     }
 }

@@ -18,10 +18,12 @@
 package lol.hyper.velocityblockversion;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.command.CommandMeta;
-import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.EventManager;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lol.hyper.githubreleaseapi.GitHubRelease;
@@ -29,7 +31,6 @@ import lol.hyper.githubreleaseapi.GitHubReleaseAPI;
 import lol.hyper.velocityblockversion.commands.CommandReload;
 import lol.hyper.velocityblockversion.events.JoinEvent;
 import lol.hyper.velocityblockversion.tools.ConfigHandler;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
 
@@ -44,37 +45,37 @@ import java.io.IOException;
         url = "https://github.com/hyperdefined/VelocityBlockVersion"
 )
 public class VelocityBlockVersion {
-
-    public ConfigHandler configHandler;
-    public JoinEvent joinEvent;
-    public CommandReload commandReload;
-    public final String VERSION = "1.0.7";
-
-    public final Logger logger;
-    private final Metrics.Factory metricsFactory;
-    private final ProxyServer server;
-    private final CommandManager commandManager;
-    public final MiniMessage miniMessage = MiniMessage.miniMessage();
+    public static final String VERSION = "1.0.7";
 
     @Inject
-    public VelocityBlockVersion(ProxyServer server, Logger logger, Metrics.Factory metricsFactory, CommandManager commandManager) {
-        this.server = server;
-        this.logger = logger;
-        this.metricsFactory = metricsFactory;
-        this.commandManager = commandManager;
-    }
+    private Logger logger;
+    @Inject
+    private Metrics.Factory metricsFactory;
+    @Inject
+    private ProxyServer server;
+    @Inject
+    private CommandManager commandManager;
+    @Inject
+    private EventManager eventManager;
+    @Inject
+    private Injector injector;
 
     @Subscribe
-    public void onProxyInitialization(ProxyInitializeEvent event) {
-        configHandler = new ConfigHandler(this);
-        joinEvent = new JoinEvent(this);
-        commandReload = new CommandReload(this);
-        configHandler.loadConfig();
-        metricsFactory.make(this, 13308);
-        server.getScheduler().buildTask(this, this::checkForUpdates).schedule();
-        server.getEventManager().register(this, joinEvent);
+    public void onProxyInitialization(final ProxyInitializeEvent event) {
+        final ConfigHandler configHandler = injector.getInstance(ConfigHandler.class);
+        if (!configHandler.loadConfig()) {
+            return;
+        }
 
-        CommandMeta meta = commandManager.metaBuilder("vbvreload").build();
+        metricsFactory.make(this, 13308);
+
+        server.getScheduler().buildTask(this, this::checkForUpdates).schedule();
+
+        final JoinEvent joinEvent = injector.getInstance(JoinEvent.class);
+        eventManager.register(this, joinEvent);
+
+        final CommandReload commandReload = injector.getInstance(CommandReload.class);
+        final CommandMeta meta = commandManager.metaBuilder("vbvreload").plugin(this).build();
         commandManager.register(meta, commandReload);
     }
 
@@ -83,12 +84,11 @@ public class VelocityBlockVersion {
         try {
             api = new GitHubReleaseAPI("velocityblockversion", "hyperdefined");
         } catch (IOException e) {
-            logger.warn("Unable to check updates!");
-            e.printStackTrace();
+            logger.warn("Unable to check updates!", e);
             return;
         }
-        GitHubRelease current = api.getReleaseByTag(VERSION);
-        GitHubRelease latest = api.getLatestVersion();
+        final GitHubRelease current = api.getReleaseByTag(VERSION);
+        final GitHubRelease latest = api.getLatestVersion();
         if (current == null) {
             logger.warn("You are running a version that does not exist on GitHub. If you are in a dev environment, you can ignore this. Otherwise, this is a bug!");
             return;
@@ -97,7 +97,7 @@ public class VelocityBlockVersion {
         if (buildsBehind == 0) {
             logger.info("You are running the latest version.");
         } else {
-            logger.warn("A new version is available (" + latest.getTagVersion() + ")! You are running version " + current.getTagVersion() + ". You are " + buildsBehind + " version(s) behind.");
+            logger.warn("A new version is available ({})! You are running version {}. You are " + buildsBehind + " version(s) behind.", latest.getTagVersion(), current.getTagVersion());
         }
     }
 }
