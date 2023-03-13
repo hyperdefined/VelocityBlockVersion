@@ -38,6 +38,6 @@ public final class CommandReload implements SimpleCommand {
 
     @Override
     public boolean hasPermission(final Invocation invocation) {
-        return invocation.source().hasPermission("velocityBlockVersion.reload");
+        return invocation.source().hasPermission("velocityblockversion.reload");
     }
 }
