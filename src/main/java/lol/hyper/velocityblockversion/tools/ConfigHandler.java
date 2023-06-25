@@ -18,6 +18,7 @@
 package lol.hyper.velocityblockversion.tools;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.moandjiezana.toml.Toml;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Singleton
 public final class ConfigHandler {
     @Inject
     private Logger logger;
@@ -42,12 +44,16 @@ public final class ConfigHandler {
     private final List<Integer> blockVersions = new ArrayList<>();
     public final long CONFIG_VERSION = 5;
 
+    @Inject
+    public ConfigHandler() {}
+
     public boolean loadConfig() {
         if (Files.notExists(folderPath)) {
             try {
                 Files.createDirectory(folderPath);
             } catch(IOException e) {
                 logger.error("Unable to create config folder!", e);
+                return false;
             }
         }
 
