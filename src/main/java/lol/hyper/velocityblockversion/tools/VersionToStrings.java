@@ -30,15 +30,18 @@ public final class VersionToStrings {
      * @return Returns the string of versions. Returns nulls if there are no versions that are allowed.
      */
     public static String allowedVersions(final List<Integer> deniedVersions) {
-        final Map<Integer, ProtocolVersion> versionMap = ProtocolVersion.ID_TO_PROTOCOL_CONSTANT;
+        final Map<Integer, ProtocolVersion> versionMap = new HashMap<>(ProtocolVersion.ID_TO_PROTOCOL_CONSTANT);
+        versionMap.remove(-1);
+        versionMap.remove(-2);
         final List<Integer> allVersions = new ArrayList<>(versionMap.keySet());
         allVersions.removeAll(deniedVersions);
         if (allVersions.isEmpty()) {
             return null;
         }
+
         final int minVersion = Collections.min(allVersions);
         final int maxVersion = Collections.max(allVersions);
 
-        return versionMap.get(minVersion).getVersionIntroducedIn() + " to " + versionMap.get(maxVersion).getMostRecentSupportedVersion();
+        return versionMap.get(minVersion).toString() + " to " + versionMap.get(maxVersion).toString();
     }
 }
