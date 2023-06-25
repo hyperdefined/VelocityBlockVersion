@@ -36,16 +36,18 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 
+import static lol.hyper.velocityblockversion.VelocityBlockVersion.VERSION;
+
 @Plugin(
         id = "velocityblockversion",
         name = "VelocityBlockVersion",
-        version = "1.0.9",
+        version = VERSION,
         authors = {"hyperdefined"},
         description = "Block certain Minecraft versions from connecting to your network.",
         url = "https://github.com/hyperdefined/VelocityBlockVersion"
 )
 public class VelocityBlockVersion {
-    public static final String VERSION = "1.0.8";
+    public static final String VERSION = "1.0.9";
 
     @Inject
     private Logger logger;
