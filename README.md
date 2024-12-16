@@ -5,10 +5,11 @@
 	<img src="https://img.shields.io/github/v/release/hyperdefined/VelocityBlockVersion" alt="GitHub release (latest by date)">
 	<a href="https://github.com/hyperdefined/VelocityBlockVersion/releases"><img src="https://img.shields.io/github/downloads/hyperdefined/VelocityBlockVersion/total?logo=github" alt="Downloads"></a>
 	<a href="https://ko-fi.com/hyperdefined"><img src="https://img.shields.io/badge/Donate-Ko--fi-red" alt="Donate via Ko-fi"></a>
+	<img alt="Discord" src="https://img.shields.io/discord/1267600843356639413?style=flat&logo=discord&label=Discord">
 	<a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3"></a>
 </p>
 
-A port of BungeeBlockVersion for Velocity. This plugin will block players from connecting to your network with certain versions.
+A Velocity plugin to limit what versions of Minecraft can connect to your server. This plugin blocks versions you do not want.
 
 ## Features
 * Block players if they are using a version that is on the list.
