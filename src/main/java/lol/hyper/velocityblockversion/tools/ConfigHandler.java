@@ -139,9 +139,9 @@ public final class ConfigHandler {
                 }
             });
             versionsList.sort((a, b) -> a.compareTo(b));
-            logger.info("Loaded {} versions!", versionsSet.size());
+            logger.info("Loaded {} versions!", versionsList.size());
         }
-        logger.info("Loaded versions: {}", versionsSet.stream().map(String::valueOf).collect(Collectors.joining(", ")));
+        logger.info("Loaded versions: {}", versionsList.stream().map(String::valueOf).collect(Collectors.joining(", ")));
 
         String versionString = VersionToStrings.versionRange(versionsList);
         String disconnectMessage = config.getString("disconnect_message");

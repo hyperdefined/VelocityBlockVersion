@@ -54,13 +54,14 @@ versions = [
   770,
   771,
   772,
+  773,
 ]
 
 # Send this message when someone is denied access to the server.
 # Use <versions> to show what versions your server uses. It will display like "1.8 - 1.16.3" or whatever.
 # If you don't want to use <versions>, just remove it.
 # You may need to change the default value if you use whitelist mode.
-disconnect_message = "<red>You cannot connect with this version! We only allow version(s) <versions>."
+disconnect_message = "<red>The following version(s) are not allowed to join this server: <versions>."
 
 # This will say "Player is connecting with protocol version" when someone joins.
 # This is off by default to not spam your console, but you can enable it for debug reasons.
