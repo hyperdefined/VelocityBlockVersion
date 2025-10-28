@@ -22,26 +22,57 @@ import com.velocitypowered.api.network.ProtocolVersion;
 import java.util.*;
 
 public final class VersionToStrings {
+    private static class VersionRange {
+        int start;
+        int end;
+
+        VersionRange(int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        @Override
+        public String toString() {
+            String firstVersion = ProtocolVersion.ID_TO_PROTOCOL_CONSTANT.get(start).getVersionIntroducedIn();
+            String lastVersion = ProtocolVersion.ID_TO_PROTOCOL_CONSTANT.get(end).getMostRecentSupportedVersion();
+            return firstVersion.equals(lastVersion) ? firstVersion : firstVersion + " - " + lastVersion;
+        }
+    }
+
     private VersionToStrings() {}
 
     /**
      * Builds a string that will show what versions the server supports. Example: 1.8 to 1.14.4
-     * @param deniedVersions Versions to deny.
-     * @return Returns the string of versions. Returns nulls if there are no versions that are allowed.
+     * @param versionList The list of versions
+     * @return Returns the string of versions. Returns "{null}" if the input list is empty.
      */
-    public static String allowedVersions(final List<Integer> deniedVersions) {
-        final Map<Integer, ProtocolVersion> versionMap = new HashMap<>(ProtocolVersion.ID_TO_PROTOCOL_CONSTANT);
-        versionMap.remove(-1);
-        versionMap.remove(-2);
-        final List<Integer> allVersions = new ArrayList<>(versionMap.keySet());
-        allVersions.removeAll(deniedVersions);
-        if (allVersions.isEmpty()) {
-            return null;
+    public static String versionRange(final List<Integer> versionList) {
+        List<VersionRange> ranges = new ArrayList<>();
+
+        Integer start = null, prev = null;
+
+        for (int version : versionList) {
+            if (start == null) {
+                start = version;
+                prev = version;
+                continue;
+            }
+
+            if (version == prev + 1) {
+                prev = version;
+            } else if (version == prev) {
+                continue;
+            } else {
+                ranges.add(new VersionRange(start, prev));
+                start = null;
+                prev = null;
+            }
         }
 
-        final int minVersion = Collections.min(allVersions);
-        final int maxVersion = Collections.max(allVersions);
+        if (start != null) {
+            ranges.add(new VersionRange(start, prev));
+        }
 
-        return versionMap.get(minVersion).toString() + " to " + versionMap.get(maxVersion).toString();
+        return String.join(", ", ranges.stream().map(VersionRange::toString).toList());
     }
 }
