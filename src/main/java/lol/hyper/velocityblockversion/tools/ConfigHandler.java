@@ -130,15 +130,9 @@ public final class ConfigHandler {
         if (versionsList.isEmpty()) {
             logger.warn("There are no versions listed in the config!");
         } else {
-            versionsList.removeIf(protocol -> {
-                if (ProtocolVersion.ID_TO_PROTOCOL_CONSTANT.containsKey(protocol)) {
-                    return false;
-                } else {
-                    logger.warn("Version {} is NOT a valid version number! Ignoring this version.", protocol);
-                    return true;
-                }
-            });
             versionsList.sort((a, b) -> a.compareTo(b));
+            versionsList = versionsList.stream().filter(elm -> ProtocolVersion.ID_TO_PROTOCOL_CONSTANT.containsKey(elm))
+                                                .distinct().sorted().toList();
             logger.info("Loaded {} versions!", versionsList.size());
         }
         logger.info("Loaded versions: {}", versionsList.stream().map(String::valueOf).collect(Collectors.joining(", ")));

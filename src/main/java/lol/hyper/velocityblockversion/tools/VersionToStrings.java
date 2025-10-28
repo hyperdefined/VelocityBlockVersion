@@ -48,29 +48,28 @@ public final class VersionToStrings {
      */
     public static String versionRange(final List<Integer> versionList) {
         List<VersionRange> ranges = new ArrayList<>();
-
-        Integer start = null, prev = null;
+        List<Integer> supported = new ArrayList<>(ProtocolVersion.SUPPORTED_VERSIONS
+                                .stream().map(ProtocolVersion::getProtocol).toList());
+        
+        Integer start = null, prev = 0;
 
         for (int version : versionList) {
             if (start == null) {
-                start = version;
-                prev = version;
+                start = supported.indexOf(version);
+                prev = start;
                 continue;
             }
 
-            if (version == prev + 1) {
-                prev = version;
-            } else if (version == prev) {
-                continue;
+            if (supported.get(prev + 1).equals(version)) {
+                prev += 1;
             } else {
-                ranges.add(new VersionRange(start, prev));
+                ranges.add(new VersionRange(supported.get(start), supported.get(prev)));
                 start = null;
-                prev = null;
             }
         }
 
         if (start != null) {
-            ranges.add(new VersionRange(start, prev));
+            ranges.add(new VersionRange(supported.get(start), supported.get(prev)));
         }
 
         return String.join(", ", ranges.stream().map(VersionRange::toString).toList());
