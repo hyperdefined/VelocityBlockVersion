@@ -71,6 +71,10 @@ public final class ConfigHandler {
     @Inject
     public ConfigHandler() {}
 
+    /**
+     * Load the plugin settings from the configuration file.
+     * @return True if the configuration was loaded, false if there was an error.
+     */
     public boolean loadConfig() {
         if (Files.notExists(folderPath)) {
             try {
@@ -149,18 +153,34 @@ public final class ConfigHandler {
         return true;
     }
 
+    /**
+     * Get the set of version protocol included in the configuration by the user
+     * @return The version set
+     */
     public Set<Integer> getVersionsSet() {
         return versionsSet;
     }
 
+    /**
+     * Get the mode on which the plugin operates.
+     * @return A value from the enum describing the mode.
+     */
     public OperationMode getOperationMode() {
         return operationMode;
     }
 
+    /**
+     * Get the computed message sent to players that are denied access.
+     * @return miniMessage Component containing the message.
+     */
     public Component getDeniedMessage() {
         return deniedMessage;
     }
 
+    /**
+     * Get the config parse instance.
+     * @return The Toml parser instance.
+     */
     public Toml getConfig() {
         return config;
     }

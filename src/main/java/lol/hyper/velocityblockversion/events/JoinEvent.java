@@ -31,6 +31,10 @@ public final class JoinEvent {
     @Inject
     private ConfigHandler configHandler;
 
+    /**
+     * Called by Velocity when a player joins.
+     * @param event The context of the event.
+     */
     @Subscribe(order = PostOrder.FIRST)
     public void onPlayerLogin(final PreLoginEvent event) {
         final int version = event.getConnection().getProtocolVersion().getProtocol();

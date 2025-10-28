@@ -28,6 +28,9 @@ public final class CommandReload implements SimpleCommand {
     @Inject
     private ConfigHandler configHandler;
 
+    /**
+     * Called by Brigadier when the command is executed.
+     */
     @Override
     public void execute(final Invocation invocation) {
         final CommandSource source = invocation.source();
@@ -36,6 +39,9 @@ public final class CommandReload implements SimpleCommand {
         }
     }
 
+    /**
+     * Returns whether an invoacion has permission to execute this command.
+     */
     @Override
     public boolean hasPermission(final Invocation invocation) {
         return invocation.source().hasPermission("velocityblockversion.reload");

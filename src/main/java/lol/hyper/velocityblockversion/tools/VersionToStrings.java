@@ -31,6 +31,10 @@ public final class VersionToStrings {
             this.end = end;
         }
 
+        /**
+         * Get the string representation of this version range
+         * @return A string representing the minimum and maximum version of this range.
+         */
         @Override
         public String toString() {
             String firstVersion = ProtocolVersion.ID_TO_PROTOCOL_CONSTANT.get(start).getVersionIntroducedIn();
@@ -55,7 +59,8 @@ public final class VersionToStrings {
         List<Integer> supported = new ArrayList<>(ProtocolVersion.SUPPORTED_VERSIONS
                                 .stream().map(ProtocolVersion::getProtocol).toList());
 
-        int start = supported.indexOf(versionList.get(0)), prev = start;
+        int start = supported.indexOf(versionList.get(0));
+        int prev = start;
 
         Iterator<Integer> it = versionList.iterator();
         it.next();
