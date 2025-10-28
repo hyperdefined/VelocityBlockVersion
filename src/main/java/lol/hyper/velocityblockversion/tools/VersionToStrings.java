@@ -47,30 +47,30 @@ public final class VersionToStrings {
      * @return Returns the string of versions. Returns "{null}" if the input list is empty.
      */
     public static String versionRange(final List<Integer> versionList) {
+        if (versionList.isEmpty()) {
+            return "{null}";
+        }
+
         List<VersionRange> ranges = new ArrayList<>();
         List<Integer> supported = new ArrayList<>(ProtocolVersion.SUPPORTED_VERSIONS
                                 .stream().map(ProtocolVersion::getProtocol).toList());
-        
-        Integer start = null, prev = 0;
 
-        for (int version : versionList) {
-            if (start == null) {
-                start = supported.indexOf(version);
-                prev = start;
-                continue;
-            }
+        int start = supported.indexOf(versionList.get(0)), prev = start;
 
-            if (supported.get(prev + 1).equals(version)) {
+        Iterator<Integer> it = versionList.iterator();
+        it.next();
+
+        while (it.hasNext()) {
+            int version = it.next();
+            if (version == supported.get(prev + 1)) {
                 prev += 1;
             } else {
                 ranges.add(new VersionRange(supported.get(start), supported.get(prev)));
-                start = null;
+                start = supported.indexOf(version);
+                prev = start;
             }
         }
-
-        if (start != null) {
-            ranges.add(new VersionRange(supported.get(start), supported.get(prev)));
-        }
+        ranges.add(new VersionRange(supported.get(start), supported.get(prev)));
 
         return String.join(", ", ranges.stream().map(VersionRange::toString).toList());
     }
