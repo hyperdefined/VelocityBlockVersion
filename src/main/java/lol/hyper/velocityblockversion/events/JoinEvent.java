@@ -23,12 +23,7 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.network.ProtocolVersion;
 import lol.hyper.velocityblockversion.tools.ConfigHandler;
-import lol.hyper.velocityblockversion.tools.VersionToStrings;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.slf4j.Logger;
-
-import static net.kyori.adventure.text.minimessage.MiniMessage.miniMessage;
 
 public final class JoinEvent {
     @Inject
@@ -36,6 +31,10 @@ public final class JoinEvent {
     @Inject
     private ConfigHandler configHandler;
 
+    /**
+     * Called by Velocity when a player joins.
+     * @param event The context of the event.
+     */
     @Subscribe(order = PostOrder.FIRST)
     public void onPlayerLogin(final PreLoginEvent event) {
         final int version = event.getConnection().getProtocolVersion().getProtocol();
@@ -43,25 +42,14 @@ public final class JoinEvent {
             logger.info("Player is connecting with protocol version: {}", version);
         }
 
-        if (!configHandler.getBlockVersions().contains(version)) {
+        boolean isBlacklist = configHandler.getOperationMode().equals(ConfigHandler.OperationMode.BLACKLIST);
+        if (configHandler.getVersionsSet().contains(version) ^ isBlacklist) {
             return;
         }
 
-        String allowedVersions = VersionToStrings.allowedVersions(configHandler.getBlockVersions());
-        String blockedMessage = configHandler.getConfig().getString("disconnect_message");
-
-        if (allowedVersions == null) {
-            blockedMessage = "<red>All versions are currently blocked from playing.";
-            allowedVersions = "";
-        }
-
-        final Component message = miniMessage().deserialize(
-                blockedMessage,
-                Placeholder.unparsed("versions", allowedVersions)
-        );
-        event.setResult(PreLoginEvent.PreLoginComponentResult.denied(message));
+        event.setResult(PreLoginEvent.PreLoginComponentResult.denied(configHandler.getDeniedMessage()));
         logger.info(
-                "Blocking player {} because they are playing on version {} which is blocked!",
+                "Blocking player {} because they are playing on version {} which is not allowed!",
                 event.getUsername(),
                 ProtocolVersion.getProtocolVersion(version).getMostRecentSupportedVersion()
         );

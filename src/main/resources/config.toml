@@ -1,8 +1,14 @@
-# These versions will NOT be allowed to connect.
+# Set the mode for the plugin. This can either be "blacklist" or "whitelist".
+#  blacklist: Versions listed below will not be allowed to connect.
+#  whitelist: Only versions listed below will be allowed to connect.
+mode = "blacklist"
+
 # These versions MUST be the version number. You can check the numbers here: https://wiki.vg/Protocol_version_numbers
-# By default, all versions are listed here.
+# By default, all versions from 1.7.2 to 1.21.10 are listed here.
 # Everything here must have a comma after it!
 versions = [
+  4,
+  5,
   47,
   107,
   108,
@@ -37,16 +43,29 @@ versions = [
   759,
   760,
   761,
+  762,
+  763,
+  764,
+  765,
+  766,
+  767,
+  768,
+  769,
+  770,
+  771,
+  772,
+  773,
 ]
 
-# Send this message if someone connects with a blocked version.
-# Use <versions> to show what versions your server uses. It will display like "1.8 to 1.16.3" or whatever.
+# Send this message when someone is denied access to the server.
+# Use <versions> to show what versions your server uses. It will display like "1.8 - 1.16.3" or whatever.
 # If you don't want to use <versions>, just remove it.
-disconnect_message = "<red>You cannot connect with this version! We only allow version(s) <versions>."
+# You may need to change the default value if you use whitelist mode.
+disconnect_message = "<red>The following version(s) are not allowed to join this server: <versions>."
 
 # This will say "Player is connecting with protocol version" when someone joins.
 # This is off by default to not spam your console, but you can enable it for debug reasons.
 log_connection_versions = false
 
 # No touch please :)
-config_version = 5
+config_version = 6

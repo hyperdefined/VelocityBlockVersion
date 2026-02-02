@@ -17,11 +17,17 @@
 
 package lol.hyper.velocityblockversion.tools;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.moandjiezana.toml.Toml;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -30,10 +36,26 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Singleton
 public final class ConfigHandler {
+    public enum OperationMode {
+        BLACKLIST, WHITELIST;
+
+        public static OperationMode fromString(String mode) {
+            switch (mode) {
+                case "blacklist":
+                    return BLACKLIST;
+                case "whitelist":
+                    return WHITELIST;
+                default:
+                    return null;
+            }
+        }
+    };
+
     @Inject
     private Logger logger;
     @Inject
@@ -41,12 +63,18 @@ public final class ConfigHandler {
     private Path folderPath;
 
     private Toml config;
-    private final List<Integer> blockVersions = new ArrayList<>();
-    public final long CONFIG_VERSION = 5;
+    private OperationMode operationMode = OperationMode.BLACKLIST;
+    private Set<Integer> versionsSet = ImmutableSet.of();
+    private Component deniedMessage = MiniMessage.miniMessage().deserialize("");
+    public final long CONFIG_VERSION = 6;
 
     @Inject
     public ConfigHandler() {}
 
+    /**
+     * Load the plugin settings from the configuration file.
+     * @return True if the configuration was loaded, false if there was an error.
+     */
     public boolean loadConfig() {
         if (Files.notExists(folderPath)) {
             try {
@@ -83,41 +111,76 @@ public final class ConfigHandler {
             logger.warn(
                     "To fix this, delete your current config and let the server remake it.");
         }
-        blockVersions.clear();
 
+        operationMode = OperationMode.fromString(config.getString("mode", "blacklist"));
+        if (operationMode == null) {
+            logger.error("Unexpected mode option found. Using default value.");
+            operationMode = OperationMode.BLACKLIST;
+        }
+        logger.info("Operation mode: {}", operationMode.toString());
+
+        List<Integer> versionsList = new ArrayList<>();
         // for some reason, the config loads the versions as longs
         // we have to convert them this ugly way
         for (Object obj : config.getList("versions", List.of())) {
             if (obj instanceof Number) {
                 int t = ((Number) obj).intValue();
-                blockVersions.add(t);
+                versionsList.add(t);
             } else {
                 logger.error("Unexpected versions configuration input {}", obj);
             }
         }
 
-        if (blockVersions.isEmpty()) {
+        if (versionsList.isEmpty()) {
             logger.warn("There are no versions listed in the config!");
         } else {
-            blockVersions.removeIf(protocol -> {
-                if (ProtocolVersion.ID_TO_PROTOCOL_CONSTANT.containsKey(protocol)) {
-                    return false;
-                } else {
-                    logger.warn("Version {} is NOT a valid version number! Ignoring this version.", protocol);
-                    return true;
-                }
-            });
-            logger.info("Loaded {} versions!", blockVersions.size());
+            versionsList.sort((a, b) -> a.compareTo(b));
+            versionsList = versionsList.stream().filter(elm -> ProtocolVersion.ID_TO_PROTOCOL_CONSTANT.containsKey(elm))
+                                                .distinct().sorted().toList();
+            logger.info("Loaded {} versions!", versionsList.size());
         }
-        logger.info("Loaded versions: {}", blockVersions.stream().map(String::valueOf).collect(Collectors.joining(", ")));
+        logger.info("Loaded versions: {}", versionsList.stream().map(String::valueOf).collect(Collectors.joining(", ")));
 
+        String versionString = VersionToStrings.versionRange(versionsList);
+        String disconnectMessage = config.getString("disconnect_message");
+
+        deniedMessage = MiniMessage.miniMessage().deserialize(
+                disconnectMessage,
+                Placeholder.unparsed("versions", versionString)
+        );
+        
+        versionsSet = ImmutableSet.copyOf(versionsList);
         return true;
     }
 
-    public List<Integer> getBlockVersions() {
-        return blockVersions;
+    /**
+     * Get the set of version protocol included in the configuration by the user
+     * @return The version set
+     */
+    public Set<Integer> getVersionsSet() {
+        return versionsSet;
     }
 
+    /**
+     * Get the mode on which the plugin operates.
+     * @return A value from the enum describing the mode.
+     */
+    public OperationMode getOperationMode() {
+        return operationMode;
+    }
+
+    /**
+     * Get the computed message sent to players that are denied access.
+     * @return miniMessage Component containing the message.
+     */
+    public Component getDeniedMessage() {
+        return deniedMessage;
+    }
+
+    /**
+     * Get the config parse instance.
+     * @return The Toml parser instance.
+     */
     public Toml getConfig() {
         return config;
     }

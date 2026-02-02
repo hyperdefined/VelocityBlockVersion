@@ -62,6 +62,10 @@ public class VelocityBlockVersion {
     @Inject
     private Injector injector;
 
+    /**
+     * Called by Velocity when the proxy is being initialized
+     * @param event The event context
+     */
     @Subscribe
     public void onProxyInitialization(final ProxyInitializeEvent event) {
         final ConfigHandler configHandler = injector.getInstance(ConfigHandler.class);
@@ -81,6 +85,9 @@ public class VelocityBlockVersion {
         commandManager.register(meta, commandReload);
     }
 
+    /**
+     * Checks for available updates and informs the user by logging it to console.
+     */
     public void checkForUpdates() {
         GitHubReleaseAPI api;
         try {

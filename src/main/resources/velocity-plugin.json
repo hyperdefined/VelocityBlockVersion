@@ -1,0 +1,12 @@
+{
+    "id": "velocityblockversion",
+    "name": "VelocityBlockVersion",
+    "version": "1.0.9",
+    "description": "Block certain Minecraft versions from connecting to your network.",
+    "url": "https://github.com/hyperdefined/VelocityBlockVersion",
+    "authors": [
+        "hyperdefined"
+    ],
+    "dependencies": [],
+    "main": "lol.hyper.velocityblockversion.VelocityBlockVersion"
+}
