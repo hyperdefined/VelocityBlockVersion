@@ -20,7 +20,7 @@ dependencies {
 }
 
 group = "lol.hyper"
-version = "1.0.9"
+version = "1.0.10"
 description = "VelocityBlockVersion"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
