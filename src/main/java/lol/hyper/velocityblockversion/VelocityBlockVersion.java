@@ -47,7 +47,7 @@ import static lol.hyper.velocityblockversion.VelocityBlockVersion.VERSION;
         url = "https://github.com/hyperdefined/VelocityBlockVersion"
 )
 public class VelocityBlockVersion {
-    public static final String VERSION = "1.0.9";
+    public static final String VERSION = "1.0.10";
 
     @Inject
     private Logger logger;
