@@ -45,16 +45,13 @@ public final class ConfigHandler {
         BLACKLIST, WHITELIST;
 
         public static OperationMode fromString(String mode) {
-            switch (mode) {
-                case "blacklist":
-                    return BLACKLIST;
-                case "whitelist":
-                    return WHITELIST;
-                default:
-                    return null;
-            }
+            return switch (mode) {
+                case "blacklist" -> BLACKLIST;
+                case "whitelist" -> WHITELIST;
+                default -> null;
+            };
         }
-    };
+    }
 
     @Inject
     private Logger logger;
@@ -117,7 +114,7 @@ public final class ConfigHandler {
             logger.error("Unexpected mode option found. Using default value.");
             operationMode = OperationMode.BLACKLIST;
         }
-        logger.info("Operation mode: {}", operationMode.toString());
+        logger.info("Operation mode: {}", operationMode);
 
         List<Integer> versionsList = new ArrayList<>();
         // for some reason, the config loads the versions as longs
@@ -134,8 +131,8 @@ public final class ConfigHandler {
         if (versionsList.isEmpty()) {
             logger.warn("There are no versions listed in the config!");
         } else {
-            versionsList.sort((a, b) -> a.compareTo(b));
-            versionsList = versionsList.stream().filter(elm -> ProtocolVersion.ID_TO_PROTOCOL_CONSTANT.containsKey(elm))
+            versionsList.sort(Integer::compareTo);
+            versionsList = versionsList.stream().filter(ProtocolVersion.ID_TO_PROTOCOL_CONSTANT::containsKey)
                                                 .distinct().sorted().toList();
             logger.info("Loaded {} versions!", versionsList.size());
         }

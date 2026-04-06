@@ -23,8 +23,8 @@ import java.util.*;
 
 public final class VersionToStrings {
     private static class VersionRange {
-        int start;
-        int end;
+        final int start;
+        final int end;
 
         VersionRange(int start, int end) {
             this.start = start;

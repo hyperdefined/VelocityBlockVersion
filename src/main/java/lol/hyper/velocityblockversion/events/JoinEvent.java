@@ -18,7 +18,6 @@
 package lol.hyper.velocityblockversion.events;
 
 import com.google.inject.Inject;
-import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.network.ProtocolVersion;
@@ -35,7 +34,7 @@ public final class JoinEvent {
      * Called by Velocity when a player joins.
      * @param event The context of the event.
      */
-    @Subscribe(order = PostOrder.FIRST)
+    @Subscribe()
     public void onPlayerLogin(final PreLoginEvent event) {
         final int version = event.getConnection().getProtocolVersion().getProtocol();
         if (configHandler.getConfig().getBoolean("log_connection_versions", false)) {

@@ -106,7 +106,7 @@ public class VelocityBlockVersion {
         if (buildsBehind == 0) {
             logger.info("You are running the latest version.");
         } else {
-            logger.warn("A new version is available ({})! You are running version {}. You are " + buildsBehind + " version(s) behind.", latest.getTagVersion(), current.getTagVersion());
+            logger.warn("A new version is available ({})! You are running version {}. You are {} version(s) behind.", latest.getTagVersion(), current.getTagVersion(), buildsBehind);
         }
     }
 }
