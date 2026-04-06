@@ -18,30 +18,25 @@
 package lol.hyper.velocityblockversion.tools;
 
 import com.velocitypowered.api.network.ProtocolVersion;
+import org.jspecify.annotations.NonNull;
 
 import java.util.*;
 
 public final class VersionToStrings {
-    private static class VersionRange {
-        final int start;
-        final int end;
-
-        VersionRange(int start, int end) {
-            this.start = start;
-            this.end = end;
-        }
+    private record VersionRange(int start, int end) {
 
         /**
          * Get the string representation of this version range
+         *
          * @return A string representing the minimum and maximum version of this range.
          */
-        @Override
-        public String toString() {
-            String firstVersion = ProtocolVersion.ID_TO_PROTOCOL_CONSTANT.get(start).getVersionIntroducedIn();
-            String lastVersion = ProtocolVersion.ID_TO_PROTOCOL_CONSTANT.get(end).getMostRecentSupportedVersion();
-            return firstVersion.equals(lastVersion) ? firstVersion : firstVersion + " - " + lastVersion;
+            @Override
+            public @NonNull String toString() {
+                String firstVersion = ProtocolVersion.ID_TO_PROTOCOL_CONSTANT.get(start).getVersionIntroducedIn();
+                String lastVersion = ProtocolVersion.ID_TO_PROTOCOL_CONSTANT.get(end).getMostRecentSupportedVersion();
+                return firstVersion.equals(lastVersion) ? firstVersion : firstVersion + " - " + lastVersion;
+            }
         }
-    }
 
     private VersionToStrings() {}
 
@@ -59,7 +54,7 @@ public final class VersionToStrings {
         List<Integer> supported = new ArrayList<>(ProtocolVersion.SUPPORTED_VERSIONS
                                 .stream().map(ProtocolVersion::getProtocol).toList());
 
-        int start = supported.indexOf(versionList.get(0));
+        int start = supported.indexOf(versionList.getFirst());
         int prev = start;
 
         Iterator<Integer> it = versionList.iterator();
