@@ -1,7 +1,7 @@
 {
     "id": "velocityblockversion",
     "name": "VelocityBlockVersion",
-    "version": "1.0.9",
+    "version": "${version}",
     "description": "Block certain Minecraft versions from connecting to your network.",
     "url": "https://github.com/hyperdefined/VelocityBlockVersion",
     "authors": [
